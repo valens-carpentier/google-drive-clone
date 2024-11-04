@@ -1,0 +1,56 @@
+google-drive-clone/
+├── config/
+│   ├── passport.js          # Passport strategies setup
+│   │   # - LocalStrategy
+│   │   # - serializeUser
+│   │   # - deserializeUser
+│   ├── prisma-session.js    # @quixo3/prisma-session-store setup
+│   ├── multer.js           # Multer configuration
+│   └── supabase.js         # Supabase storage client
+│
+├── controllers/
+│   ├── auth.js             # Passport authentication handlers
+│   ├── files.js            # File operations with Supabase
+│   └── folders.js          # Folder operations
+│
+├── middleware/
+│   ├── auth.js             # passport.authenticate middleware
+│   └── upload.js           # Multer middleware
+│
+├── prisma/
+│   └── schema.prisma       # Database models including:
+│       # model User {
+│       #   id       String   @id @default(uuid())
+│       #   email    String   @unique
+│       #   password String
+│       #   files    File[]
+│       # }
+│       # model Session {...}
+│       # model File {...}
+│
+├── routes/
+│   ├── auth.js            # Passport login/register routes
+│   ├── files.js           # Protected file routes
+│   └── folders.js         # Protected folder routes
+│
+└── app.js                 # Express + Passport + Session setup
+│
+├── public/
+│   └── uploads/               # Multer temporary storage
+│
+├── views/
+│   ├── login.ejs
+│   ├── register.ejs
+│   ├── dashboard.ejs
+│   └── folder.ejs
+│
+├── .env
+│
+└── package.json               # Added dependencies:
+                              # passport
+                              # passport-local
+                              # express-session
+                              # @quixo3/prisma-session-store
+                              # multer
+                              # @supabase/supabase-js
+                              # bcryptjs
