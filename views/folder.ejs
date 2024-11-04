@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Folder - Google Drive Clone</title>
+    <link rel="stylesheet" href="/main.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/dashboard">Back to My Drive</a>
+            <a href="/logout">Logout</a>
+        </nav>
+    </header>
+
+    <main>
+        <% if (locals.error) { %>
+            <div class="error-message">
+                <%= error %>
+            </div>
+        <% } %>
+
+        <section class="folder-header">
+            <h1><%= folder.name %></h1>
+        </section>
+
+        <section class="files-section">
+            <h2>Files in this folder</h2>
+            <% if (locals.files && files.length > 0) { %>
+                <ul class="files-list">
+                    <% files.forEach(file => { %>
+                        <li class="file-item">
+                            <span class="file-name"><%= file.name %></span>
+                            <div class="file-metadata">
+                                <small>Size: <%= (file.size / 1024).toFixed(2) %> KB</small>
+                                <small>Uploaded: <%= new Date(file.uploadedAt).toLocaleString() %></small>
+                            </div>
+                            <div class="file-actions">
+                                <a href="/files/<%= file.id %>/download" class="download-button">Download</a>
+                                <form action="/files/<%= file.id %>/delete" method="POST" style="display: inline;">
+                                    <button type="submit" class="delete-button">Delete</button>
+                                </form>
+                            </div>
+                        </li>
+                    <% }); %>
+                </ul>
+            <% } else { %>
+                <p>No files in this folder.</p>
+            <% } %>
+        </section>
+    </main>
+</body>
+</html>

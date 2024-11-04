@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Details - Google Drive Clone</title>
+    <link rel="stylesheet" href="/main.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/dashboard">Back to My Drive</a>
+        </nav>
+    </header>
+
+    <main class="file-details-container">
+        <% if (locals.error) { %>
+            <div class="error-message">
+                <%= error %>
+            </div>
+        <% } %>
+
+        <section class="file-info">
+            <h1>File Details</h1>
+            <div class="file-card">
+                <div class="file-header">
+                    <h2 class="file-name"><%= file.name %></h2>
+                    <span class="file-location">
+                        <%= file.folder ? `In folder: ${file.folder.name}` : 'Root directory' %>
+                    </span>
+                </div>
+
+                <div class="file-metadata">
+                    <p>Size: <%= (file.size / 1024).toFixed(2) %> KB</p>
+                    <p>Uploaded: <%= new Date(file.uploadedAt).toLocaleString() %></p>
+                </div>
+
+                <div class="file-actions">
+                    <a href="/files/<%= file.id %>/download" class="action-button download-button">
+                        Download
+                    </a>
+                    <form action="/files/<%= file.id %>/move" method="POST" style="display: inline;">
+                        <select name="folderId" required>
+                            <option value="">Move to...</option>
+                            <% if (locals.folders && folders.length > 0) { %>
+                                <% folders.forEach(folder => { %>
+                                    <option value="<%= folder.id %>" <%= file.folderId === folder.id ? 'selected' : '' %>>
+                                        <%= folder.name %>
+                                    </option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                        <button type="submit" class="action-button move-button">Move</button>
+                    </form>
+                    <form action="/files/<%= file.id %>/delete" method="POST" style="display: inline;">
+                        <button type="submit" class="action-button delete-button">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

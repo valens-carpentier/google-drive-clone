@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Google Drive Clone</title>
+    <link rel="stylesheet" href="/main.css">
+</head>
+<body>
+    <header>
+        <h1>My Drive</h1>
+        <nav>
+            <a href="/logout">Logout</a>
+        </nav>
+    </header>
+
+    <main>
+        <% if (locals.error) { %>
+            <div class="error-message">
+                <%= error %>
+            </div>
+        <% } %>
+
+        <section class="files-section">
+            <h2>My Files</h2>
+            <% if (locals.files && files.length > 0) { %>
+                <ul class="files-list">
+                    <% files.forEach(file => { %>
+                        <li class="file-item">
+                            <span class="file-name"><%= file.name %></span>
+                            <div class="file-metadata">
+                                <small>Size: <%= (file.size / 1024).toFixed(2) %> KB</small>
+                                <small>Uploaded: <%= new Date(file.uploadedAt).toLocaleString() %></small>
+                                <% if (file.folder) { %>
+                                    <small>Folder: <a href="/folders/<%= file.folder.id %>"><%= file.folder.name %></a></small>
+                                <% } else { %>
+                                    <small>Location: Root</small>
+                                <% } %>
+                            </div>
+                            <div class="file-actions">
+                                <a href="/files/<%= file.id %>/download" class="download-button">Download</a>
+                                <a href="/files/<%= file.id %>" class="view-button">View</a>
+                                <form action="/files/<%= file.id %>/delete" method="POST" style="display: inline;">
+                                    <button type="submit" class="delete-button">Delete</button>
+                                </form>
+                            </div>
+                        </li>
+                    <% }); %>
+                </ul>
+            <% } else { %>
+                <p>No files found. Upload your first file to get started!</p>
+            <% } %>
+        </section>
+
+        <section class="upload-section">
+            <h2>Upload New File</h2>
+            <form action="/upload" method="POST" enctype="multipart/form-data" class="upload-form">
+                <div class="file-input-wrapper">
+                    <input type="file" name="file" required accept="*/*">
+                    <input type="text" name="customFileName" placeholder="Custom file name (optional)">
+                    <small>Max file size: 10MB</small>
+                </div>
+                <button type="submit" class="upload-button">Upload File</button>
+            </form>
+        </section>
+        <section class="logout-section">
+            <h2>Account</h2>
+            <p>Logged in as: <%= user.username %></p>
+            <a href="/logout" class="logout-button">Logout</a>
+        </section>
+        <section class="folders-section">
+            <h2>My Folders</h2>
+            <form action="/folders" method="POST" class="create-folder-form">
+                <input type="text" name="name" placeholder="New Folder Name" required>
+                <button type="submit">Create Folder</button>
+            </form>
+            
+            <% if (locals.folders && folders.length > 0) { %>
+                <ul class="folders-list">
+                    <% folders.forEach(folder => { %>
+                        <li class="folder-item">
+                            <a href="/folders/<%= folder.id %>">
+                                <span class="folder-name"><%= folder.name %></span>
+                            </a>
+                            <form action="/folders/<%= folder.id %>/delete" method="POST" style="display: inline;">
+                                <button type="submit" class="delete-button">Delete</button>
+                            </form>
+                        </li>
+                    <% }); %>
+                </ul>
+            <% } else { %>
+                <p>No folders yet. Create your first folder to get started!</p>
+            <% } %>
+        </section>
+    </main>
+</body>
+</html>
