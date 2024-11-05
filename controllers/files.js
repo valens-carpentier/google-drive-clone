@@ -1,7 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const path = require('path');
-const fs = require('fs');
+const supabase = require('../config/supabase');
 
 // Upload a file
 const uploadFile = async (req, res) => {
@@ -12,15 +11,36 @@ const uploadFile = async (req, res) => {
 
         const folderId = req.params.folderId || null;
         const customFileName = req.body.customFileName;
+        const originalName = customFileName || req.file.originalname;
         
-        // Save file information to database with both names
+        // Create a unique stored filename
+        const timestamp = Date.now();
+        const storedFilename = `${timestamp}_${req.file.originalname}`;
+
+        // Upload to Supabase Storage with user ID prefix in path
+        const { data, error } = await supabase.storage
+            .from('files')
+            .upload(
+                `${req.user.id}/${storedFilename}`,
+                req.file.buffer,
+                {
+                    contentType: req.file.mimetype,
+                    cacheControl: '3600',
+                    upsert: false
+                }
+            );
+
+        if (error) throw error;
+
+        // Save file information to database - store only the filename part
         const file = await prisma.file.create({
             data: {
-                name: customFileName || req.file.originalname,
-                storedName: req.file.filename, // Store the actual filename on disk
+                name: originalName,
+                storedName: storedFilename,
                 userId: req.user.id,
                 folderId: folderId,
                 size: req.file.size,
+                mimeType: req.file.mimetype,
                 uploadedAt: new Date()
             }
         });
@@ -50,13 +70,20 @@ const downloadFile = async (req, res) => {
             return res.redirect('/dashboard?error=File not found');
         }
 
-        const filePath = path.join(__dirname, '../uploads', file.storedName);
-        
-        if (!fs.existsSync(filePath)) {
-            return res.redirect('/dashboard?error=File not found on disk');
-        }
+        // Get file from Supabase Storage with user ID prefix
+        const { data, error } = await supabase.storage
+            .from('files')
+            .download(`${file.userId}/${file.storedName}`);
 
-        res.download(filePath, file.name);
+        if (error) throw error;
+
+        // Set response headers
+        res.setHeader('Content-Type', file.mimeType);
+        res.setHeader('Content-Disposition', `attachment; filename="${file.name}"`);
+        
+        // Send the file data
+        const buffer = Buffer.from(await data.arrayBuffer());
+        res.send(buffer);
     } catch (error) {
         console.error(error);
         res.redirect('/dashboard?error=Download failed');
@@ -75,18 +102,18 @@ const deleteFile = async (req, res) => {
             return res.redirect('/dashboard?error=File not found');
         }
 
-        // Delete file from filesystem
-        const filePath = path.join(__dirname, '../uploads/', file.name);
-        if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
-        }
+        // Delete from Supabase Storage
+        const { error } = await supabase.storage
+            .from('files')
+            .remove([`${req.user.id}/${file.storedName}`]);
+
+        if (error) throw error;
 
         // Delete file record from database
         await prisma.file.delete({
             where: { id: req.params.id }
         });
 
-        // Redirect based on whether file was in a folder or not
         if (file.folderId) {
             res.redirect(`/folders/${file.folderId}`);
         } else {

@@ -5,18 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Google Drive Clone</title>
     <link rel="stylesheet" href="/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
     <header>
-        <h1>My Drive</h1>
+        <div class="header-left">
+            <h1><span class="material-icons">description</span>My Drive</h1>
+        </div>
         <nav>
-            <a href="/logout">Logout</a>
+            <a href="/logout" class="action-button">
+                <span class="material-icons">logout</span>
+            </a>
         </nav>
     </header>
 
     <main>
         <% if (locals.error) { %>
             <div class="error-message">
+                <span class="material-icons">error</span>
                 <%= error %>
             </div>
         <% } %>
@@ -27,51 +34,72 @@
                 <ul class="files-list">
                     <% files.forEach(file => { %>
                         <li class="file-item">
-                            <span class="file-name"><%= file.name %></span>
+                            <div class="file-name-wrapper">
+                                <span class="material-icons file-icon">
+                                    <%= file.mimeType?.includes('image') ? 'image' : 
+                                       file.mimeType?.includes('pdf') ? 'picture_as_pdf' : 
+                                       file.mimeType?.includes('video') ? 'video_file' : 
+                                       'description' %>
+                                </span>
+                                <span class="file-name"><%= file.name %></span>
+                            </div>
                             <div class="file-metadata">
-                                <small>Size: <%= (file.size / 1024).toFixed(2) %> KB</small>
-                                <small>Uploaded: <%= new Date(file.uploadedAt).toLocaleString() %></small>
+                                <small><%= (file.size / 1024).toFixed(2) %> KB</small>
+                                <small>
+                                    <span class="material-icons" style="font-size: 16px;">schedule</span>
+                                    <%= new Date(file.uploadedAt).toLocaleDateString() %>
+                                </small>
                                 <% if (file.folder) { %>
-                                    <small>Folder: <a href="/folders/<%= file.folder.id %>"><%= file.folder.name %></a></small>
-                                <% } else { %>
-                                    <small>Location: Root</small>
+                                    <small>
+                                        <span class="material-icons" style="font-size: 16px;">folder</span>
+                                        <%= file.folder.name %>
+                                    </small>
                                 <% } %>
                             </div>
                             <div class="file-actions">
-                                <a href="/files/<%= file.id %>/download" class="download-button">Download</a>
-                                <a href="/files/<%= file.id %>" class="view-button">View</a>
+                                <a href="/files/<%= file.id %>/download" class="action-button" title="Download">
+                                    <span class="material-icons">download</span>
+                                </a>
+                                <a href="/files/<%= file.id %>" class="action-button" title="View details">
+                                    <span class="material-icons">visibility</span>
+                                </a>
                                 <form action="/files/<%= file.id %>/delete" method="POST" style="display: inline;">
-                                    <button type="submit" class="delete-button">Delete</button>
+                                    <button type="submit" class="action-button" title="Delete">
+                                        <span class="material-icons">delete</span>
+                                    </button>
                                 </form>
                             </div>
                         </li>
                     <% }); %>
                 </ul>
             <% } else { %>
-                <p>No files found. Upload your first file to get started!</p>
+                <p><span class="material-icons">info</span> No files found. Upload your first file to get started!</p>
             <% } %>
         </section>
 
         <section class="upload-section">
+            <span class="material-icons" style="font-size: 48px;">cloud_upload</span>
             <h2>Upload New File</h2>
             <form action="/upload" method="POST" enctype="multipart/form-data" class="upload-form">
                 <div class="file-input-wrapper">
                     <input type="file" name="file" required accept="*/*">
                     <input type="text" name="customFileName" placeholder="Custom file name (optional)">
-                    <small>Max file size: 10MB</small>
+                    <small><span class="material-icons">info</span> Max file size: 10MB</small>
                 </div>
-                <button type="submit" class="upload-button">Upload File</button>
+                <button type="submit" class="upload-button">
+                    <span class="material-icons">upload_file</span>
+                    Upload File
+                </button>
             </form>
         </section>
-        <section class="logout-section">
-            <h2>Account</h2>
-            <p>Logged in as: <%= user.username %></p>
-            <a href="/logout" class="logout-button">Logout</a>
-        </section>
+
         <section class="folders-section">
             <h2>My Folders</h2>
             <form action="/folders" method="POST" class="create-folder-form">
-                <input type="text" name="name" placeholder="New Folder Name" required>
+                <div class="input-with-icon">
+                    <span class="material-icons">create_new_folder</span>
+                    <input type="text" name="name" placeholder="New Folder Name" required>
+                </div>
                 <button type="submit">Create Folder</button>
             </form>
             
@@ -79,17 +107,24 @@
                 <ul class="folders-list">
                     <% folders.forEach(folder => { %>
                         <li class="folder-item">
-                            <a href="/folders/<%= folder.id %>">
-                                <span class="folder-name"><%= folder.name %></span>
-                            </a>
-                            <form action="/folders/<%= folder.id %>/delete" method="POST" style="display: inline;">
-                                <button type="submit" class="delete-button">Delete</button>
-                            </form>
+                            <div class="folder-content">
+                                <span class="material-icons folder-icon">folder</span>
+                                <a href="/folders/<%= folder.id %>" class="folder-name">
+                                    <%= folder.name %>
+                                </a>
+                            </div>
+                            <div class="folder-actions">
+                                <form action="/folders/<%= folder.id %>/delete" method="POST" style="display: inline;">
+                                    <button type="submit" class="action-button" title="Delete folder">
+                                        <span class="material-icons">delete</span>
+                                    </button>
+                                </form>
+                            </div>
                         </li>
                     <% }); %>
                 </ul>
             <% } else { %>
-                <p>No folders yet. Create your first folder to get started!</p>
+                <p><span class="material-icons">info</span> No folders yet. Create your first folder to get started!</p>
             <% } %>
         </section>
     </main>

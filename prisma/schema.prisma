@@ -33,6 +33,7 @@ model File {
   user          User      @relation(fields: [userId], references: [id])
   folderId      String?
   folder        Folder?   @relation(fields: [folderId], references: [id])
+  mimeType    String    // Add this field
 }
 
 model Folder {

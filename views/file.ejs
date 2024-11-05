@@ -3,58 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Details - Google Drive Clone</title>
+    <title><%= file.name %> - Google Drive Clone</title>
     <link rel="stylesheet" href="/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
     <header>
+        <div class="header-left">
+            <span class="material-icons menu-button">menu</span>
+            <h1>
+                <a href="/dashboard" class="breadcrumb-link">
+                    <span class="material-icons">description</span>My Drive
+                </a>
+                <% if (file.folder) { %>
+                    <span class="material-icons">chevron_right</span>
+                    <a href="/folders/<%= file.folder.id %>" class="breadcrumb-link">
+                        <span class="material-icons">folder</span><%= file.folder.name %>
+                    </a>
+                <% } %>
+                <span class="material-icons">chevron_right</span>
+                <span class="file-title">
+                    <span class="material-icons">description</span><%= file.name %>
+                </span>
+            </h1>
+        </div>
         <nav>
-            <a href="/dashboard">Back to My Drive</a>
+            <a href="/dashboard" class="action-button" title="Back to My Drive">
+                <span class="material-icons">home</span>
+            </a>
+            <a href="/logout" class="action-button" title="Logout">
+                <span class="material-icons">logout</span>
+            </a>
         </nav>
     </header>
 
-    <main class="file-details-container">
+    <main>
         <% if (locals.error) { %>
             <div class="error-message">
+                <span class="material-icons">error</span>
                 <%= error %>
             </div>
         <% } %>
 
-        <section class="file-info">
-            <h1>File Details</h1>
-            <div class="file-card">
-                <div class="file-header">
-                    <h2 class="file-name"><%= file.name %></h2>
-                    <span class="file-location">
-                        <%= file.folder ? `In folder: ${file.folder.name}` : 'Root directory' %>
-                    </span>
-                </div>
+        <section class="file-details">
+            <div class="file-preview">
+                <span class="material-icons" style="font-size: 96px;">description</span>
+                <h2><%= file.name %></h2>
+            </div>
 
-                <div class="file-metadata">
-                    <p>Size: <%= (file.size / 1024).toFixed(2) %> KB</p>
-                    <p>Uploaded: <%= new Date(file.uploadedAt).toLocaleString() %></p>
-                </div>
-
-                <div class="file-actions">
-                    <a href="/files/<%= file.id %>/download" class="action-button download-button">
+            <div class="file-actions-card">
+                <div class="action-group">
+                    <a href="/files/<%= file.id %>/download" class="button primary-button">
+                        <span class="material-icons">download</span>
                         Download
                     </a>
-                    <form action="/files/<%= file.id %>/move" method="POST" style="display: inline;">
-                        <select name="folderId" required>
-                            <option value="">Move to...</option>
-                            <% if (locals.folders && folders.length > 0) { %>
-                                <% folders.forEach(folder => { %>
-                                    <option value="<%= folder.id %>" <%= file.folderId === folder.id ? 'selected' : '' %>>
-                                        <%= folder.name %>
-                                    </option>
-                                <% }); %>
-                            <% } %>
-                        </select>
-                        <button type="submit" class="action-button move-button">Move</button>
-                    </form>
                     <form action="/files/<%= file.id %>/delete" method="POST" style="display: inline;">
-                        <button type="submit" class="action-button delete-button">Delete</button>
+                        <button type="submit" class="button delete-button">
+                            <span class="material-icons">delete</span>
+                            Delete
+                        </button>
                     </form>
+                </div>
+
+                <div class="file-info-list">
+                    <div class="info-item">
+                        <span class="material-icons">folder</span>
+                        <span>Location: <%= file.folder ? file.folder.name : 'Root' %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="material-icons">storage</span>
+                        <span>Size: <%= (file.size / 1024).toFixed(2) %> KB</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="material-icons">schedule</span>
+                        <span>Uploaded: <%= new Date(file.uploadedAt).toLocaleString() %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="material-icons">description</span>
+                        <span>Type: <%= file.mimeType %></span>
+                    </div>
                 </div>
             </div>
         </section>

@@ -93,6 +93,9 @@ const getDashboard = async (req, res) => {
                 },
                 include: {
                     folder: true // Include folder information
+                },
+                orderBy: {
+                    uploadedAt: 'desc' // Add this line to sort by newest first
                 }
             }),
             prisma.folder.findMany({

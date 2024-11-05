@@ -3,30 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Drive Clone</title>
+    <title>Sign In - Google Drive Clone</title>
     <link rel="stylesheet" href="/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
-    <h1>Welcome to the Google Drive Clone</h1>  
-    <% if (locals.error) { %>
-        <div class="error-message">
-            <%= error %>
-        </div>
-    <% } %>
-    <p>Please sign in to access Google Drive Clone</p>
-    <div>
-        <form action="/login" method="POST">
-            <div>
-                <label for="username">Username:</label>
+    <div class="auth-container">
+        <h1>Sign in</h1>
+        <% if (locals.error) { %>
+            <div class="error-message">
+                <span class="material-icons">error</span>
+                <%= error %>
+            </div>
+        <% } %>
+        <form action="/login" method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="username">Username or Email</label>
                 <input type="text" id="username" name="username" required>
             </div>
-            <div>
-                <label for="password">Password:</label>
+            <div class="form-group">
+                <label for="password">Password</label>
                 <input type="password" id="password" name="password" required>
             </div>
-            <button type="submit">Log In</button>
+            <button type="submit">Sign In</button>
         </form>
-        <a href="/signup">Sign Up</a>
+        <div class="auth-links">
+            <a href="/signup">Create an account</a>
+        </div>
     </div>
 </body>
 </html>
