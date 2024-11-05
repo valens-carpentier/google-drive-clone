@@ -3,6 +3,7 @@ const passportConfig = require('./config/passport');
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -13,6 +14,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
+
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)){
+    fs.mkdirSync(uploadsDir);
+}
 
 sessionConfig(app);  // Initialize session first
 passportConfig(app); // Then initialize passport
