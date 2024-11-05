@@ -8,8 +8,7 @@
     "dev": "nodemon app.js",
     "studio": "prisma studio",
     "build": "prisma generate",
-    "vercel-build": "prisma generate && prisma migrate deploy",
-    "postinstall": "prisma generate"
+    "vercel-build": "prisma generate"
   },
   "keywords": [],
   "author": "",

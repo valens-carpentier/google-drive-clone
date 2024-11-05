@@ -1,7 +1,6 @@
 const passport = require('passport');
 const bcrypt = require('bcryptjs');
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../lib/prisma');
 
 // Display login form
 const getLogin = (req, res) => {
